@@ -1,124 +1,134 @@
 # Dashboard Portal
 
-Unified portal for the Amani Trading System. Embeds **signal-dashboard** and **predict-dashboard** as iframes behind a tabbed navigation bar with live health indicators.
+Unified navigation shell for the Amani trading system dashboards. Embeds the Signal Dashboard and Predict Dashboard as iframes with health monitoring and tab-based routing.
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | React 19 + TypeScript 5.9 |
+| Build | Vite 7 |
+| Styling | Tailwind CSS v4 |
+| Routing | React Router v7 |
+| Unit Tests | Vitest 4 + Testing Library |
+| E2E Tests | Playwright (Chromium) |
 
 ## Architecture
 
 ```
- Browser
- +----------------------------------------------+
- | NavBar  [Signal] [Predict] [Trading] [System] |
- |----------------------------------------------|
- | <iframe src="signal-dashboard or predict..."> |
- +----------------------------------------------+
-        |                        |
-   VITE_SIGNAL_URL         VITE_PREDICT_URL
-   (default :3080)         (default :18828)
+src/
+├── config.ts                  # TAB_CONFIG — routes, iframe URLs, health endpoints
+├── components/
+│   ├── NavBar.tsx             # Top nav with tab buttons + health status dots
+│   └── DashboardFrame.tsx     # iframe wrapper component
+├── hooks/
+│   └── useServiceHealth.ts    # 30s health polling with CORS-aware fallback
+├── utils/
+│   ├── errorTracker.ts        # Global window error tracker
+│   └── performanceMonitor.ts  # Page load + API timing monitor
+├── __tests__/                 # Unit tests
+├── App.tsx                    # Root: Routes generated from TAB_CONFIG
+└── main.tsx                   # Entry: error/perf init + BrowserRouter
+e2e/                           # Playwright E2E tests
 ```
 
-- **Portal** -- React SPA that provides navigation and iframe orchestration.
-- **DashboardFrame** -- renders a full-viewport `<iframe>` with a restrictive `sandbox` policy (`allow-same-origin allow-scripts allow-popups allow-forms allow-downloads`).
-- **NavBar** -- tab bar driven by `TAB_CONFIG` in `src/config.ts`. Each tab maps a route to an iframe URL.
+## Pages & Routes
 
-### Tabs (defined in `src/config.ts`)
+| Path | Label | iframe Source | Health Check |
+|---|---|---|---|
+| `/signal` | Signal | `VITE_SIGNAL_URL` (default `http://localhost:3080`) | `VITE_SIGNAL_URL` |
+| `/predict` | Predict | `VITE_PREDICT_URL` (default `http://localhost:18828`) | `VITE_PREDICT_URL` |
+| `/trading` | Trading | `VITE_SIGNAL_URL/trading` | `VITE_SIGNAL_URL` |
+| `/system` | System | `VITE_SIGNAL_URL/advanced/system` | `VITE_SIGNAL_URL` |
+| `*` | — | — | Redirects to `/signal` |
 
-| Tab | Route | Iframe URL |
-|---------|-----------|-------------------------------|
-| Signal | `/signal` | `VITE_SIGNAL_URL` |
-| Predict | `/predict` | `VITE_PREDICT_URL` |
-| Trading | `/trading` | `VITE_SIGNAL_URL/trading` |
-| System | `/system` | `VITE_SIGNAL_URL/advanced/system` |
+## iframe Integration
 
-The default route (`/*`) redirects to `/signal`.
+Each tab renders a `<DashboardFrame>` component that wraps an `<iframe>` filling the full viewport below the nav bar. The iframe sandbox policy grants: `allow-same-origin`, `allow-scripts`, `allow-popups`, `allow-forms`, `allow-downloads`. Top navigation is intentionally not allowed to prevent embedded dashboards from hijacking the parent URL.
 
-## Health Check
+The Signal, Trading, and System tabs all point to different paths on the Signal Dashboard. The Predict tab points to the Predict Dashboard.
 
-The `useServiceHealth` hook (`src/hooks/useServiceHealth.ts`) polls each unique `healthUrl` every **30 seconds**:
+## Health Check Mechanism
 
-1. `fetch(url)` with `cache: no-store` -- if `res.ok` -> **green** (`ok`).
-2. If the response is not ok (e.g. non-2xx) -> **yellow** (`reachable`).
-3. On CORS/network error, retries with `mode: no-cors` -- if that succeeds -> **yellow** (`reachable`).
-4. Otherwise -> **red** (`down`).
+The `useServiceHealth` hook polls service URLs every 30 seconds with a two-stage strategy:
 
-Status is shown as a colored dot next to each tab label in the NavBar.
+1. **Normal fetch** — if `res.ok`, status is `ok` (green dot)
+2. **Opaque fetch** (`mode: 'no-cors'`) — if the server responds but CORS blocks reading, status is `reachable` (yellow dot)
+3. **Both fail** — status is `down` (red dot)
 
-## Tech Stack
-
-| Category | Library | Version |
-|----------|---------|---------|
-| Framework | React | 19.x |
-| Bundler | Vite | 7.x |
-| Language | TypeScript | 5.9 |
-| Styling | Tailwind CSS (Vite plugin) | 4.x |
-| Routing | react-router-dom | 7.x |
-| Unit Tests | Vitest + Testing Library + jsdom | -- |
-| E2E Tests | Playwright (Chromium) | -- |
-| Linting | ESLint + typescript-eslint | -- |
+Health URLs are deduplicated — Signal, Trading, and System share one check (SIGNAL_URL), so only 2 HTTP requests are made per cycle.
 
 ## Environment Variables
 
-| Variable | Default | Description |
+| Variable | Default | Purpose |
 |---|---|---|
-| `VITE_SIGNAL_URL` | `http://localhost:3080` | Base URL for signal-dashboard |
-| `VITE_PREDICT_URL` | `http://localhost:18828` | Base URL for predict-dashboard |
+| `VITE_SIGNAL_URL` | `http://localhost:3080` | Signal Dashboard base URL (also used for `/trading` and `/system` sub-paths) |
+| `VITE_PREDICT_URL` | `http://localhost:18828` | Predict Dashboard base URL |
 
-Create a `.env` file in the project root (Vite loads it automatically):
-
-```env
-VITE_SIGNAL_URL=http://localhost:3080
-VITE_PREDICT_URL=http://localhost:18828
-```
+Both are read via `import.meta.env` at **build time**. For Docker deployments, set these before running `docker compose build`.
 
 ## Development
 
 ```bash
+# Install dependencies
 npm install
-npm run dev          # starts on http://localhost:8080
+
+# Start dev server (port 8080)
+npm run dev
+
+# Build for production
+npm run build
 ```
 
-Make sure the upstream dashboards (signal, predict) are running for the iframes to load.
+Ensure the Signal Dashboard (port 3080) and Predict Dashboard (port 18828) are running for full functionality.
 
-### Scripts
-
-| Command | Description |
-|---|---|
-| `npm run dev` | Start Vite dev server (port 8080) |
-| `npm run build` | Type-check + production build to `dist/` |
-| `npm run preview` | Serve production build locally |
-| `npm run lint` | Run ESLint |
-| `npm test` | Run Vitest unit tests |
-| `npx playwright test` | Run Playwright E2E tests |
-
-## Production / Docker
+## Testing
 
 ```bash
-docker compose up --build      # builds & runs on port 8080
+# Unit tests
+npx vitest run
+
+# E2E tests (requires dev server running)
+npx playwright test
 ```
 
-The multi-stage `Dockerfile` builds the Vite app, then serves `dist/` with nginx. Nginx is configured for SPA fallback (`try_files $uri /index.html`) and 1-year cache headers for static assets.
+E2E specs: `portal` (smoke tests), `navigation` (tab routing), `responsive` (mobile/desktop).
 
-## Observability Utilities
+## Docker
 
-Initialized at startup in `src/main.tsx`:
+```bash
+# Build (set VITE_* env vars before building)
+VITE_SIGNAL_URL=http://signal:3080 VITE_PREDICT_URL=http://predict:18828 docker compose build
 
-- **ErrorTracker** (`src/utils/errorTracker.ts`) -- captures `window.error` and `unhandledrejection` events, retains the last 50 errors in memory. Access via `getRecentErrors()` / `getErrorCount()`.
-- **PerformanceMonitor** (`src/utils/performanceMonitor.ts`) -- records page load time via Navigation Timing API and wraps `fetch()` to track `/api` response times (last 200 samples). Access via `getPerformanceMetrics()`.
+# Run
+docker compose up -d
+```
 
-## Project Structure
+- Two-stage build: `node:20-alpine` → `nginx:alpine`
+- Serves on port **8080**
+- SPA fallback via `try_files $uri /index.html`
+- Static assets cached 1 year with `immutable`
+- No backend proxy — the portal only serves static files and embeds dashboards via iframe
+
+## Deployment Architecture
 
 ```
-src/
-  App.tsx                    # Router + layout
-  config.ts                  # Tab definitions + env vars
-  main.tsx                   # Entry point (init trackers)
-  components/
-    DashboardFrame.tsx       # Iframe wrapper
-    NavBar.tsx               # Tab navigation + health dots
-  hooks/
-    useServiceHealth.ts      # Periodic health polling
-  utils/
-    errorTracker.ts          # Global error capture
-    performanceMonitor.ts    # Page load + API timing
-  __tests__/                 # Vitest unit tests
-e2e/                         # Playwright E2E specs
+                    ┌──────────────────────────┐
+                    │   Dashboard Portal :8080  │
+                    │   (nginx + static SPA)    │
+                    └────────┬─────────────────┘
+                             │ iframes
+              ┌──────────────┼──────────────┐
+              ▼              ▼              ▼
+    ┌─────────────┐  ┌─────────────┐  ┌─────────────┐
+    │   Signal    │  │   Signal    │  │   Predict   │
+    │  Dashboard  │  │  /trading   │  │  Dashboard  │
+    │   :3080     │  │  /adv/sys   │  │   :18828    │
+    └──────┬──────┘  └──────┬──────┘  └──────┬──────┘
+           │                │                │
+           ▼                ▼                ▼
+    ┌─────────────┐  ┌─────────────┐  ┌─────────────┐
+    │ Signal API  │  │  Data-Eng   │  │ Predict API │
+    │   :18810    │  │   :8081     │  │   :18801    │
+    └─────────────┘  └─────────────┘  └─────────────┘
 ```
