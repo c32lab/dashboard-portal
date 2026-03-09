@@ -5,29 +5,34 @@ export interface TabConfig {
   healthUrl: string
 }
 
+const SIGNAL_URL =
+  import.meta.env.VITE_SIGNAL_URL || 'http://localhost:3080'
+const PREDICT_URL =
+  import.meta.env.VITE_PREDICT_URL || 'http://localhost:18828'
+
 export const TAB_CONFIG: TabConfig[] = [
   {
     label: 'Signal',
     path: '/signal',
-    src: 'http://localhost:3080',
-    healthUrl: 'http://localhost:3080',
+    src: SIGNAL_URL,
+    healthUrl: SIGNAL_URL,
   },
   {
     label: 'Predict',
     path: '/predict',
-    src: 'http://localhost:18828',
-    healthUrl: 'http://localhost:18828',
+    src: PREDICT_URL,
+    healthUrl: PREDICT_URL,
   },
   {
     label: 'Trading',
     path: '/trading',
-    src: 'http://localhost:3080/trading',
-    healthUrl: 'http://localhost:3080',
+    src: `${SIGNAL_URL}/trading`,
+    healthUrl: SIGNAL_URL,
   },
   {
     label: 'System',
     path: '/system',
-    src: 'http://localhost:3080/advanced/system',
-    healthUrl: 'http://localhost:3080',
+    src: `${SIGNAL_URL}/advanced/system`,
+    healthUrl: SIGNAL_URL,
   },
 ]

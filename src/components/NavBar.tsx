@@ -29,7 +29,11 @@ export default function NavBar() {
               <span className="flex items-center gap-2">
                 <span
                   className={`inline-block w-2 h-2 rounded-full ${
-                    health[tab.healthUrl] ? 'bg-green-500' : 'bg-red-500'
+                    health[tab.healthUrl] === 'ok'
+                      ? 'bg-green-500'
+                      : health[tab.healthUrl] === 'reachable'
+                        ? 'bg-yellow-500'
+                        : 'bg-red-500'
                   }`}
                 />
                 {tab.label}
