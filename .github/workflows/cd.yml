@@ -1,0 +1,30 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, cd]
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Deploy
+        working-directory: /Users/zhwu/dashboard-portal
+        run: |
+          git pull --rebase origin main
+          docker compose up --build -d
+          echo "✅ dashboard-portal deployed"
+
+      - name: Health check
+        run: |
+          sleep 10
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 http://localhost:8080/)
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ Health check passed (HTTP $STATUS)"
+          else
+            echo "❌ Health check failed (HTTP $STATUS)"
+            exit 1
+          fi
