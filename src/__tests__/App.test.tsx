@@ -47,15 +47,26 @@ describe('NavBar', () => {
 })
 
 describe('App routing', () => {
-  it('defaults to /signal', () => {
+  it('renders Overview tab in navbar', () => {
+    render(
+      <MemoryRouter initialEntries={['/signal']}>
+        <NavBar />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByText('Overview')).toBeDefined()
+  })
+
+  it('defaults to /overview', () => {
     render(
       <MemoryRouter initialEntries={['/']}>
         <App />
       </MemoryRouter>,
     )
 
-    const iframe = document.querySelector('iframe')
-    expect(iframe).toBeDefined()
-    expect(iframe?.src).toContain('localhost:3080')
+    // OverviewPage renders Loading... initially (no mocked fetch)
+    // Verify we landed on overview, not an iframe dashboard
+    expect(screen.getByText('Loading...')).toBeDefined()
+    expect(document.querySelector('iframe')).toBeNull()
   })
 })

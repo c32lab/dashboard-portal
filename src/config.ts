@@ -10,6 +10,11 @@ const SIGNAL_URL =
 const PREDICT_URL =
   import.meta.env.VITE_PREDICT_DASHBOARD_URL || 'http://localhost:18828'
 
+export const SIGNAL_API_URL =
+  import.meta.env.VITE_SIGNAL_API_URL || 'http://localhost:18810'
+export const PREDICT_API_URL =
+  import.meta.env.VITE_PREDICT_API_URL || 'http://localhost:18801'
+
 export const DASHBOARD_URLS = {
   signal: SIGNAL_URL,
   predict: PREDICT_URL,
