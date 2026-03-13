@@ -1,6 +1,6 @@
 services:
   dashboard-portal:
-    build: .
+    image: ghcr.io/c32lab/dashboard-portal:latest
     ports:
       - "8080:8080"
     restart: unless-stopped
