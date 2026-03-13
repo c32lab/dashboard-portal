@@ -2,12 +2,11 @@ import { describe, it, expect } from 'vitest'
 import { TAB_CONFIG, DASHBOARD_URLS } from '../config'
 
 describe('config', () => {
-  it('exports DASHBOARD_URLS with default values using dynamic hostname', () => {
-    const host = window.location.hostname
-    expect(DASHBOARD_URLS.signal).toBe(`http://${host}:3080`)
-    expect(DASHBOARD_URLS.predict).toBe(`http://${host}:18828`)
-    expect(DASHBOARD_URLS.trading).toBe(`http://${host}:3080/trading`)
-    expect(DASHBOARD_URLS.system).toBe(`http://${host}:3080/advanced/system`)
+  it('exports DASHBOARD_URLS with default relative paths', () => {
+    expect(DASHBOARD_URLS.signal).toBe('/signal')
+    expect(DASHBOARD_URLS.predict).toBe('/predict')
+    expect(DASHBOARD_URLS.trading).toBe('/signal/trading')
+    expect(DASHBOARD_URLS.system).toBe('/signal/advanced/system')
   })
 
   it('exports TAB_CONFIG with four tabs', () => {
@@ -20,8 +19,8 @@ describe('config', () => {
     for (const tab of TAB_CONFIG) {
       expect(tab.label).toBeTruthy()
       expect(tab.path).toMatch(/^\//)
-      expect(tab.src).toMatch(/^https?:\/\//)
-      expect(tab.healthUrl).toMatch(/^https?:\/\//)
+      expect(tab.src).toBeTruthy()
+      expect(tab.healthUrl).toBeTruthy()
     }
   })
 

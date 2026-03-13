@@ -5,18 +5,15 @@ export interface TabConfig {
   healthUrl: string
 }
 
-const host =
-  typeof window !== 'undefined' ? window.location.hostname : 'localhost'
-
 const SIGNAL_URL =
-  import.meta.env.VITE_SIGNAL_DASHBOARD_URL || `http://${host}:3080`
+  import.meta.env.VITE_SIGNAL_DASHBOARD_URL || '/signal'
 const PREDICT_URL =
-  import.meta.env.VITE_PREDICT_DASHBOARD_URL || `http://${host}:18828`
+  import.meta.env.VITE_PREDICT_DASHBOARD_URL || '/predict'
 
 export const SIGNAL_API_URL =
-  import.meta.env.VITE_SIGNAL_API_URL || `http://${host}:18810`
+  import.meta.env.VITE_SIGNAL_API_URL || '/signal'
 export const PREDICT_API_URL =
-  import.meta.env.VITE_PREDICT_API_URL || `http://${host}:18801`
+  import.meta.env.VITE_PREDICT_API_URL || '/predict'
 
 export const DASHBOARD_URLS = {
   signal: SIGNAL_URL,

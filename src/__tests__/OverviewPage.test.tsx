@@ -17,13 +17,13 @@ function mockFetchAll() {
   vi.stubGlobal(
     'fetch',
     vi.fn().mockImplementation((url: string) => {
-      if (url.includes('/api/health/deep'))
+      if (url.includes('/predict/api/health/deep'))
         return Promise.resolve({ ok: true, json: () => Promise.resolve(mockPredictDeep) })
-      if (url.includes('/api/health') && url.includes('18801'))
+      if (url.includes('/predict/api/health'))
         return Promise.resolve({ ok: true, json: () => Promise.resolve(mockPredictHealth) })
-      if (url.includes('/api/accuracy/summary'))
+      if (url.includes('/signal/api/accuracy/summary'))
         return Promise.resolve({ ok: true, json: () => Promise.resolve(mockSignalAccuracy) })
-      if (url.includes('/api/health'))
+      if (url.includes('/signal/api/health'))
         return Promise.resolve({ ok: true, json: () => Promise.resolve(mockSignalHealth) })
       return Promise.reject(new Error('Unknown URL'))
     }),
@@ -84,16 +84,16 @@ describe('OverviewPage', () => {
     vi.stubGlobal(
       'fetch',
       vi.fn().mockImplementation((url: string) => {
-        if (url.includes('/api/health/deep'))
+        if (url.includes('/predict/api/health/deep'))
           return Promise.resolve({
             ok: true,
             json: () => Promise.resolve({ status: 'ok', predictions_24h: { count_24h: 0 } }),
           })
-        if (url.includes('/api/health') && url.includes('18801'))
+        if (url.includes('/predict/api/health'))
           return Promise.resolve({ ok: true, json: () => Promise.resolve(mockPredictHealth) })
-        if (url.includes('/api/accuracy/summary'))
+        if (url.includes('/signal/api/accuracy/summary'))
           return Promise.resolve({ ok: true, json: () => Promise.resolve(mockSignalAccuracy) })
-        if (url.includes('/api/health'))
+        if (url.includes('/signal/api/health'))
           return Promise.resolve({ ok: true, json: () => Promise.resolve(mockSignalHealth) })
         return Promise.reject(new Error('Unknown URL'))
       }),
