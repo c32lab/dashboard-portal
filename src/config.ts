@@ -28,25 +28,25 @@ export const DASHBOARD_URLS = {
 export const TAB_CONFIG: TabConfig[] = [
   {
     label: 'Signal',
-    path: '/signal',
+    path: '/view/signal',
     src: DASHBOARD_URLS.signal,
     healthUrl: SIGNAL_URL,
   },
   {
     label: 'Predict',
-    path: '/predict',
+    path: '/view/predict',
     src: DASHBOARD_URLS.predict,
     healthUrl: PREDICT_URL,
   },
   {
     label: 'Trading',
-    path: '/trading',
+    path: '/view/trading',
     src: DASHBOARD_URLS.trading,
     healthUrl: SIGNAL_URL,
   },
   {
     label: 'System',
-    path: '/system',
+    path: '/view/system',
     src: DASHBOARD_URLS.system,
     healthUrl: SIGNAL_URL,
   },

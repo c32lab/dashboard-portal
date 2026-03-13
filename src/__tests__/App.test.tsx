@@ -8,7 +8,7 @@ import NavBar from '../components/NavBar'
 describe('NavBar', () => {
   it('renders all tabs', () => {
     render(
-      <MemoryRouter initialEntries={['/signal']}>
+      <MemoryRouter initialEntries={['/view/signal']}>
         <NavBar />
       </MemoryRouter>,
     )
@@ -21,7 +21,7 @@ describe('NavBar', () => {
 
   it('highlights active tab', () => {
     render(
-      <MemoryRouter initialEntries={['/predict']}>
+      <MemoryRouter initialEntries={['/view/predict']}>
         <NavBar />
       </MemoryRouter>,
     )
@@ -35,7 +35,7 @@ describe('NavBar', () => {
 
   it('switches tab on click', async () => {
     render(
-      <MemoryRouter initialEntries={['/signal']}>
+      <MemoryRouter initialEntries={['/view/signal']}>
         <NavBar />
       </MemoryRouter>,
     )
@@ -49,7 +49,7 @@ describe('NavBar', () => {
 describe('App routing', () => {
   it('renders Overview tab in navbar', () => {
     render(
-      <MemoryRouter initialEntries={['/signal']}>
+      <MemoryRouter initialEntries={['/view/signal']}>
         <NavBar />
       </MemoryRouter>,
     )
