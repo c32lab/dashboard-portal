@@ -11,8 +11,8 @@ test.describe('Responsive – Mobile viewport (375px)', () => {
     const tabContainer = page.locator('nav .overflow-x-auto')
     await expect(tabContainer).toBeVisible()
     // All tab buttons should still be in the DOM (scrollable)
-    await expect(page.getByRole('button', { name: 'Signal' })).toBeAttached()
-    await expect(page.getByRole('button', { name: 'System' })).toBeAttached()
+    await expect(page.getByRole('navigation').getByRole('button', { name:'Signal' })).toBeAttached()
+    await expect(page.getByRole('navigation').getByRole('button', { name:'System' })).toBeAttached()
   })
 
   test('page renders without crashing at 375px', async ({ page }) => {
@@ -27,9 +27,9 @@ test.describe('Responsive – Desktop viewport (1280px)', () => {
 
   test('all tabs are visible without scrolling', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('button', { name: 'Signal' })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Predict' })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Trading' })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'System' })).toBeVisible()
+    await expect(page.getByRole('navigation').getByRole('button', { name:'Signal' })).toBeVisible()
+    await expect(page.getByRole('navigation').getByRole('button', { name:'Predict' })).toBeVisible()
+    await expect(page.getByRole('navigation').getByRole('button', { name:'Trading' })).toBeVisible()
+    await expect(page.getByRole('navigation').getByRole('button', { name:'System' })).toBeVisible()
   })
 })
