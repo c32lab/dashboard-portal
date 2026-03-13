@@ -3,6 +3,11 @@ services:
     image: ghcr.io/c32lab/dashboard-portal:latest
     ports:
       - "8080:8080"
+    environment:
+      - SIGNAL_DASHBOARD_URL=http://host.docker.internal:8081
+      - PREDICT_DASHBOARD_URL=http://host.docker.internal:8082
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     mem_limit: 256m
     memswap_limit: 256m
