@@ -3,8 +3,8 @@ import { TAB_CONFIG, DASHBOARD_URLS } from '../config'
 
 describe('config', () => {
   it('exports DASHBOARD_URLS with default relative paths', () => {
-    expect(DASHBOARD_URLS.signal).toBe('/signal')
-    expect(DASHBOARD_URLS.predict).toBe('/predict')
+    expect(DASHBOARD_URLS.signal).toBe('/signal/')
+    expect(DASHBOARD_URLS.predict).toBe('/predict/')
     expect(DASHBOARD_URLS.trading).toBe('/signal/trading')
     expect(DASHBOARD_URLS.system).toBe('/signal/advanced/system')
   })
