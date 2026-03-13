@@ -5,12 +5,12 @@ test.describe('Navigation', () => {
     await page.goto('/')
   })
 
-  test('Signal tab is active by default', async ({ page }) => {
-    // Default route redirects to /signal
-    await expect(page).toHaveURL(/\/signal/)
+  test('Overview tab is active by default', async ({ page }) => {
+    // Default route redirects to /overview
+    await expect(page).toHaveURL(/\/overview/)
     // Active tab has text-blue-400 class
-    const signalButton = page.getByRole('navigation').getByRole('button', { name:'Signal' })
-    await expect(signalButton).toHaveClass(/text-blue-400/)
+    const overviewButton = page.getByRole('navigation').getByRole('button', { name: 'Overview' })
+    await expect(overviewButton).toHaveClass(/text-blue-400/)
   })
 
   test('click Predict tab → URL changes to /predict', async ({ page }) => {
@@ -32,16 +32,15 @@ test.describe('Navigation', () => {
   })
 
   test('active tab has visual indicator (blue underline)', async ({ page }) => {
-    // On /signal, the active tab should have an underline span
-    const signalButton = page.getByRole('navigation').getByRole('button', { name:'Signal' })
-    const underline = signalButton.locator('span.bg-blue-500')
-    await expect(underline).toBeVisible()
+    // On /overview (default), the Overview button should have an underline span
+    const overviewButton = page.getByRole('navigation').getByRole('button', { name: 'Overview' })
+    await expect(overviewButton.locator(':scope > span.bg-blue-500')).toBeVisible()
 
-    // Switch to Trading and verify indicator moves
-    await page.getByRole('navigation').getByRole('button', { name:'Trading' }).click()
-    const tradingButton = page.getByRole('navigation').getByRole('button', { name:'Trading' })
-    await expect(tradingButton.locator('span.bg-blue-500')).toBeVisible()
-    // Signal should no longer have the underline
-    await expect(signalButton.locator('span.bg-blue-500')).toBeHidden()
+    // Switch to Signal and verify indicator moves
+    const signalButton = page.getByRole('navigation').getByRole('button', { name: 'Signal' })
+    await signalButton.click()
+    await expect(signalButton.locator(':scope > span.bg-blue-500')).toBeVisible()
+    // Overview should no longer have the underline
+    await expect(overviewButton.locator(':scope > span.bg-blue-500')).toBeHidden()
   })
 })
