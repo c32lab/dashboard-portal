@@ -6,9 +6,9 @@ import { createProxyMiddleware } from "http-proxy-middleware";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = 8080;
 const SIGNAL_TARGET =
-  process.env.SIGNAL_DASHBOARD_URL || "http://localhost:3080";
+  process.env.SIGNAL_DASHBOARD_URL || "http://localhost:8081";
 const PREDICT_TARGET =
-  process.env.PREDICT_DASHBOARD_URL || "http://localhost:18828";
+  process.env.PREDICT_DASHBOARD_URL || "http://localhost:8082";
 
 const app = express();
 
