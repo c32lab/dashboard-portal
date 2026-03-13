@@ -1,8 +1,8 @@
 import { renderHook, act } from '@testing-library/react'
-import { describe, it, expect, vi, afterEach } from 'vitest'
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
 import { useOverviewData } from '../hooks/useOverviewData'
 
-const mockSignalHealth = { status: 'ok', uptime_seconds: 3600, active_symbols: 42 }
+const mockSignalHealth = { status: 'ok', uptime_seconds: 3600, active_symbols: ['BTC/USDT'] }
 const mockSignalAccuracy = {
   windows: {
     '24h': { accuracy_1h_pct: 72.5 },
@@ -30,7 +30,12 @@ function mockFetchSuccess() {
 }
 
 describe('useOverviewData', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
   afterEach(() => {
+    vi.useRealTimers()
     vi.restoreAllMocks()
   })
 
@@ -40,7 +45,7 @@ describe('useOverviewData', () => {
     const { result } = renderHook(() => useOverviewData())
 
     await act(async () => {
-      await new Promise((r) => setTimeout(r, 50))
+      await vi.advanceTimersByTimeAsync(50)
     })
 
     expect(result.current.isLoading).toBe(false)
@@ -64,7 +69,7 @@ describe('useOverviewData', () => {
     const { result } = renderHook(() => useOverviewData())
 
     await act(async () => {
-      await new Promise((r) => setTimeout(r, 50))
+      await vi.advanceTimersByTimeAsync(50)
     })
 
     expect(result.current.isLoading).toBe(false)
@@ -84,7 +89,40 @@ describe('useOverviewData', () => {
     const { result } = renderHook(() => useOverviewData())
 
     await act(async () => {
-      await new Promise((r) => setTimeout(r, 50))
+      await vi.advanceTimersByTimeAsync(50)
+    })
+
+    expect(result.current.isLoading).toBe(false)
+    expect(result.current.signalHealth).toBeNull()
+    expect(result.current.signalAccuracy).toBeNull()
+    expect(result.current.predictHealth).toBeNull()
+    expect(result.current.predictDeep).toBeNull()
+    expect(Object.keys(result.current.errors)).toHaveLength(4)
+  })
+
+  it('resolves with error states when fetch hangs beyond 10s timeout', async () => {
+    // Simulate hanging fetches that never resolve until aborted
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation((_url: string, opts?: RequestInit) => {
+        return new Promise((_resolve, reject) => {
+          opts?.signal?.addEventListener('abort', () => {
+            reject(new DOMException('The operation was aborted.', 'AbortError'))
+          })
+        })
+      }),
+    )
+
+    const { result } = renderHook(() => useOverviewData())
+
+    // Advance past the 10s AbortController timeout
+    await act(async () => {
+      vi.advanceTimersByTime(10_000)
+    })
+
+    // Allow microtasks (promise rejections) to flush
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(50)
     })
 
     expect(result.current.isLoading).toBe(false)

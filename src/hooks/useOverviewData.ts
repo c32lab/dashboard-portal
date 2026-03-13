@@ -4,7 +4,7 @@ import { SIGNAL_API_URL, PREDICT_API_URL } from '../config'
 export interface SignalHealth {
   status: string
   uptime_seconds: number
-  active_symbols: number
+  active_symbols: string[]
 }
 
 export interface SignalAccuracy {
@@ -37,9 +37,15 @@ export interface OverviewData {
 const INTERVAL_MS = 60_000
 
 async function fetchJson<T>(url: string): Promise<T> {
-  const res = await fetch(url, { cache: 'no-store' })
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  return res.json()
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 10_000)
+  try {
+    const res = await fetch(url, { cache: 'no-store', signal: controller.signal })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    return res.json()
+  } finally {
+    clearTimeout(timeoutId)
+  }
 }
 
 export function useOverviewData(): OverviewData {
