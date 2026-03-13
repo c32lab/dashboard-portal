@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import OverviewPage from '../components/OverviewPage'
 
-const mockSignalHealth = { status: 'ok', uptime_seconds: 3600, active_symbols: 42 }
+const mockSignalHealth = { status: 'ok', uptime_seconds: 3600, active_symbols: ['BTCUSDT', 'ETHUSDT'] }
 const mockSignalAccuracy = {
   windows: {
     '24h': { accuracy_1h_pct: 72.5 },
@@ -56,7 +56,7 @@ describe('OverviewPage', () => {
     expect(screen.getByText('Signal Accuracy')).toBeDefined()
     expect(screen.getByText('Predict Service')).toBeDefined()
     expect(screen.getByText('Predictions')).toBeDefined()
-    expect(screen.getByText('42')).toBeDefined()
+    expect(screen.getByText('BTCUSDT, ETHUSDT')).toBeDefined()
     expect(screen.getByText('72.5%')).toBeDefined()
     expect(screen.getByText('1.2.0')).toBeDefined()
     expect(screen.getByText('150')).toBeDefined()

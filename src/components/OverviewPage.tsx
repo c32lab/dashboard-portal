@@ -51,7 +51,7 @@ export default function OverviewPage() {
           </div>
           {signalHealth ? (
             <div className="space-y-1 text-sm text-gray-400">
-              <p>Active Symbols: <span className="text-white">{signalHealth.active_symbols}</span></p>
+              <p>Active Symbols: <span className="text-white">{Array.isArray(signalHealth.active_symbols) ? signalHealth.active_symbols.join(', ') : signalHealth.active_symbols}</span></p>
               <p>Uptime: <span className="text-white">{formatUptime(signalHealth.uptime_seconds)}</span></p>
             </div>
           ) : (
